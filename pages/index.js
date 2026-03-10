@@ -1,292 +1,272 @@
-import { useState, useEffect, useRef } from 'react';
-import Head from 'next/head';
+// pages/index.js
+import { useState, useEffect, useCallback } from "react";
+import Head from "next/head";
 
-const CATEGORIAS = ['Todos', 'Moviles', 'TV y Monitores', 'Audio', 'Informatica', 'Hogar', 'Gaming', 'Moda', 'Libros'];
-
-function formatTiempo(fecha) {
-  try {
-    const diff = Math.floor((Date.now() - new Date(fecha)) / 60000);
-    if (diff < 60) return `Hace ${diff}m`;
-    if (diff < 1440) return `Hace ${Math.floor(diff / 60)}h`;
-    return `Hace ${Math.floor(diff / 1440)}d`;
-  } catch { return ''; }
-}
-
-function formatPrecio(n) {
-  if (!n) return null;
-  return Number(n).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-
-function DealCard({ deal }) {
-  const [imgError, setImgError] = useState(false);
-  const ahorro = deal.ahorro
-    ? Number(deal.ahorro).toFixed(2)
-    : deal.precio && deal.precioAntes
-    ? (deal.precioAntes - deal.precio).toFixed(2)
-    : null;
-  const descuento = deal.descuento || (deal.precio && deal.precioAntes
-    ? Math.round((1 - deal.precio / deal.precioAntes) * 100)
-    : null);
-
-  return (
-    <a href={deal.enlace} target="_blank" rel="noopener noreferrer sponsored" className="deal-card">
-      <div className="deal-img">
-        {deal.imagen && !imgError ? (
-          <img src={deal.imagen} alt={deal.titulo} onError={() => setImgError(true)} />
-        ) : (
-          <div className="deal-img-placeholder">🛍️</div>
-        )}
-        {descuento && <span className="badge-descuento">-{descuento}%</span>}
-      </div>
-      <div className="deal-body">
-        <div className="deal-cat">{deal.categoria}</div>
-        <div className="deal-nombre">{deal.titulo}</div>
-        <div className="deal-precios">
-          {deal.precio && <span className="precio-actual">{formatPrecio(deal.precio)}€</span>}
-          {deal.precioAntes && <span className="precio-antes">{formatPrecio(deal.precioAntes)}€</span>}
-          {ahorro && parseFloat(ahorro) > 0 && (
-            <span className="precio-ahorro">Ahorras {ahorro}€</span>
-          )}
-        </div>
-        <div className="deal-footer">
-          <span className="deal-votos">🔥 {deal.votos}</span>
-          <span className="deal-tiempo">{formatTiempo(deal.fecha)}</span>
-        </div>
-        <span className="deal-btn">Ver en Amazon →</span>
-      </div>
-    </a>
-  );
-}
-
-function AlertaForm() {
-  const [producto, setProducto] = useState('');
-  const [telegram, setTelegram] = useState('');
-  const [estado, setEstado] = useState('idle');
-  const [msg, setMsg] = useState('');
-
-  async function handleSubmit(e) {
-    e.preventDefault();
-    if (!producto.trim()) return;
-    setEstado('loading');
-    try {
-      const res = await fetch('/api/alerta', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ producto, telegram }),
-      });
-      const data = await res.json();
-      setMsg(data.mensaje || 'Alerta registrada correctamente.');
-      setEstado('ok');
-      setProducto('');
-      setTelegram('');
-    } catch {
-      setMsg('Error al registrar. Intentalo de nuevo.');
-      setEstado('error');
-    }
-  }
-
-  return (
-    <section className="alerta-section" id="alertas">
-      <div className="alerta-inner">
-        <div className="alerta-top">
-          <h2 className="alerta-titulo">
-            Avísame cuando baje el precio
-          </h2>
-          <p className="alerta-sub">
-            Dinos que producto buscas. Te avisamos por Telegram cuando baje al precio que quieres.
-          </p>
-          {estado === 'ok' ? (
-            <div className="alerta-ok">✓ {msg}</div>
-          ) : (
-            <form onSubmit={handleSubmit}>
-              <div className="alerta-form">
-                <input
-                  className="alerta-input"
-                  type="text"
-                  placeholder="Ej: iPhone 15, AirPods Pro, Samsung S24..."
-                  value={producto}
-                  onChange={e => setProducto(e.target.value)}
-                  required
-                />
-                <input
-                  className="alerta-input"
-                  type="text"
-                  placeholder="Tu @usuario de Telegram (opcional)"
-                  value={telegram}
-                  onChange={e => setTelegram(e.target.value)}
-                />
-                <button className="alerta-btn" type="submit" disabled={estado === 'loading'}>
-                  {estado === 'loading' ? 'Enviando...' : 'Activar alerta gratis'}
-                </button>
-              </div>
-              <p className="alerta-nota">Sin spam. Solo te avisamos cuando baje el precio.</p>
-            </form>
-          )}
-        </div>
-        <div className="alerta-canal">
-          <div className="canal-texto">
-            <div className="canal-titulo">Canal de Telegram</div>
-            <div className="canal-sub">Recibe los mejores chollos directamente en Telegram</div>
-          </div>
-          <a href="https://t.me/chollomaster_ofertas" target="_blank" rel="noopener noreferrer" className="canal-btn">
-            Unirme al canal →
-          </a>
-        </div>
-      </div>
-    </section>
-  );
-}
+const TELEGRAM_CANAL = "https://t.me/chollomaster_ofertas";
+const REFRESH_MS = 5 * 60 * 1000; // 5 minutos
 
 export default function Home() {
-  const [deals, setDeals] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [categoria, setCategoria] = useState('Todos');
-  const [total, setTotal] = useState(0);
-  const dealsRef = useRef(null);
+  const [ofertas, setOfertas] = useState([]);
+  const [categorias, setCategorias] = useState([]);
+  const [categoriaActiva, setCategoriaActiva] = useState("Todos");
+  const [cargando, setCargando] = useState(true);
+  const [ultimaActualizacion, setUltimaActualizacion] = useState(null);
+  const [countdown, setCountdown] = useState(300);
+  const [imgErrors, setImgErrors] = useState({});
 
-  useEffect(() => {
-    fetch('/api/deals')
-      .then(r => r.json())
-      .then(data => {
-        setDeals(data.deals || []);
-        setTotal(data.total || 0);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
+  const cargarOfertas = useCallback(async (cat) => {
+    try {
+      const url = cat && cat !== "Todos"
+        ? `/api/deals?categoria=${encodeURIComponent(cat)}&limit=40`
+        : `/api/deals?limit=40`;
+      const res = await fetch(url);
+      const data = await res.json();
+      setOfertas(data.ofertas || []);
+      setCategorias(data.categorias || []);
+      setUltimaActualizacion(new Date());
+      setCountdown(300);
+      setImgErrors({});
+    } catch (err) {
+      console.error("Error cargando ofertas:", err);
+    } finally {
+      setCargando(false);
+    }
   }, []);
 
-  const dealsFiltrados = categoria === 'Todos' ? deals : deals.filter(d => d.categoria === categoria);
+  // Carga inicial
+  useEffect(() => {
+    cargarOfertas(categoriaActiva);
+  }, [categoriaActiva, cargarOfertas]);
+
+  // Auto-refresh cada 5 minutos
+  useEffect(() => {
+    const interval = setInterval(() => {
+      cargarOfertas(categoriaActiva);
+    }, REFRESH_MS);
+    return () => clearInterval(interval);
+  }, [categoriaActiva, cargarOfertas]);
+
+  // Countdown visual
+  useEffect(() => {
+    const tick = setInterval(() => {
+      setCountdown((prev) => (prev <= 0 ? 300 : prev - 1));
+    }, 1000);
+    return () => clearInterval(tick);
+  }, []);
+
+  const formatCountdown = (s) => {
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return `${m}:${sec.toString().padStart(2, "0")}`;
+  };
+
+  const handleImgError = (id) => {
+    setImgErrors((prev) => ({ ...prev, [id]: true }));
+  };
+
+  const coloresCategoria = {
+    "Tecnología": "#2563eb",
+    Hogar: "#16a34a",
+    Deporte: "#dc2626",
+    Gaming: "#7c3aed",
+    Moda: "#db2777",
+    "Niños": "#f59e0b",
+    "Bebé": "#ec4899",
+    Supermercado: "#059669",
+    Mascotas: "#8b5cf6",
+    "Papelería": "#6366f1",
+    Herramientas: "#ca8a04",
+    Salud: "#0891b2",
+  };
 
   return (
     <>
       <Head>
-        <title>CholloMaster — Las mejores ofertas de Amazon</title>
-        <meta name="description" content="Los mejores chollos de Amazon España actualizados automaticamente. Alertas gratis por Telegram." />
+        <title>CholloMaster - Las mejores ofertas de Amazon actualizadas</title>
+        <meta
+          name="description"
+          content="Ofertas y chollos de Amazon España actualizados cada 5 minutos. Ahorra en tecnología, hogar, deporte, gaming y más."
+        />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
       </Head>
 
-      {/* HEADER */}
+      {/* HEADER - compacto */}
       <header className="header">
         <div className="header-inner">
-          <a href="/" className="logo">
-            Chollo<span>Master</span>
-            <span className="logo-dot" />
-          </a>
-          <div className="header-tagline">
-            Los mejores chollos de Amazon, solos.
+          <div className="header-left">
+            <h1 className="logo">
+              Chollo<span>Master</span>
+            </h1>
+            <p className="tagline">Ofertas de Amazon actualizadas cada 5 min</p>
           </div>
-          <nav className="header-nav">
-            <a href="#chollos" className="nav-link">Chollos</a>
-            <a href="#alertas" className="nav-cta">Alertas Telegram</a>
-          </nav>
+          <div className="header-right">
+            <div className="refresh-badge">
+              <span className="refresh-dot"></span>
+              Próxima actualización: {formatCountdown(countdown)}
+            </div>
+            <a
+              href={TELEGRAM_CANAL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-telegram"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" />
+              </svg>
+              Alertas Telegram
+            </a>
+          </div>
         </div>
       </header>
 
-      {/* TICKER */}
-      <div className="ticker-wrap">
-        <div className="ticker-track">
-          {[
-            { txt: `${total || 0} chollos activos ahora mismo`, bold: true },
-            { txt: 'Actualizado cada 6 horas', bold: false },
-            { txt: 'Solo ofertas reales de Amazon', bold: true },
-            { txt: 'Alertas gratis por Telegram', bold: false },
-            { txt: 'Sin registro. Sin spam.', bold: true },
-            { txt: 'Ahorra sin buscar', bold: false },
-          ].concat([
-            { txt: `${total || 0} chollos activos ahora mismo`, bold: true },
-            { txt: 'Actualizado cada 6 horas', bold: false },
-            { txt: 'Solo ofertas reales de Amazon', bold: true },
-            { txt: 'Alertas gratis por Telegram', bold: false },
-            { txt: 'Sin registro. Sin spam.', bold: true },
-            { txt: 'Ahorra sin buscar', bold: false },
-          ]).map((item, i) => (
-            <span key={i} className="ticker-item">
-              {item.bold ? <strong>{item.txt}</strong> : item.txt}
-              <span className="ticker-sep">—</span>
-            </span>
-          ))}
-        </div>
-      </div>
-
-      {/* FILTROS */}
-      <div className="filters-wrap" ref={dealsRef} id="chollos">
-        <div className="filters-inner">
-          <span className="filter-label">Filtrar:</span>
-          {CATEGORIAS.map(cat => (
+      <main className="main">
+        {/* FILTROS DE CATEGORÍA */}
+        <div className="filtros-bar">
+          <div className="filtros-inner">
             <button
-              key={cat}
-              className={`filter-btn${categoria === cat ? ' activo' : ''}`}
-              onClick={() => setCategoria(cat)}
+              className={`filtro-btn ${categoriaActiva === "Todos" ? "activo" : ""}`}
+              onClick={() => setCategoriaActiva("Todos")}
             >
-              {cat}
+              🔥 Todos
             </button>
-          ))}
-        </div>
-      </div>
-
-      {/* DEALS */}
-      <section className="deals-section">
-        <div className="deals-header">
-          <h1 className="deals-titulo">
-            {categoria === 'Todos' ? 'Todos los chollos' : categoria}
-          </h1>
-          <span className="deals-count">{dealsFiltrados.length} ofertas</span>
-        </div>
-        <div className="deals-grid">
-          {loading && (
-            <div className="loading-state">
-              <div className="loading-spinner" />
-              <p className="loading-texto">Buscando los mejores chollos...</p>
-            </div>
-          )}
-          {!loading && dealsFiltrados.map(deal => (
-            <DealCard key={deal.id} deal={deal} />
-          ))}
-          {!loading && dealsFiltrados.length === 0 && (
-            <div className="loading-state">
-              <p className="loading-texto">Sin chollos en esta categoria por ahora.</p>
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* COMO FUNCIONA */}
-      <section className="como-funciona">
-        <div className="section-inner">
-          <h2 className="section-titulo">Como funciona</h2>
-          <div className="pasos">
-            <div className="paso">
-              <div className="paso-num">01</div>
-              <div className="paso-titulo">Escaneo automatico</div>
-              <p className="paso-texto">Monitorizamos Amazon España cada 6 horas. Los mejores chollos aparecen solos.</p>
-            </div>
-            <div className="paso">
-              <div className="paso-num">02</div>
-              <div className="paso-titulo">Elige y ahorra</div>
-              <p className="paso-texto">Filtra por categoria. Haz clic y vas directo al producto en Amazon.</p>
-            </div>
-            <div className="paso">
-              <div className="paso-num">03</div>
-              <div className="paso-titulo">Alertas por Telegram</div>
-              <p className="paso-texto">Dinos que producto quieres. Te avisamos cuando baje del precio que buscas.</p>
-            </div>
+            {categorias.map((cat) => (
+              <button
+                key={cat}
+                className={`filtro-btn ${categoriaActiva === cat ? "activo" : ""}`}
+                onClick={() => setCategoriaActiva(cat)}
+              >
+                {cat}
+              </button>
+            ))}
           </div>
         </div>
-      </section>
 
-      {/* ALERTA TELEGRAM */}
-      <AlertaForm />
+        {/* CONTADOR DE OFERTAS */}
+        <div className="ofertas-header">
+          <h2 className="ofertas-titulo">
+            {categoriaActiva === "Todos" ? "Todas las ofertas" : categoriaActiva}
+            <span className="ofertas-count">{ofertas.length} chollos</span>
+          </h2>
+          {ultimaActualizacion && (
+            <p className="ofertas-update">
+              Actualizado: {ultimaActualizacion.toLocaleTimeString("es-ES")}
+            </p>
+          )}
+        </div>
+
+        {/* GRID DE OFERTAS */}
+        {cargando ? (
+          <div className="loading">
+            <div className="spinner"></div>
+            <p>Buscando chollos...</p>
+          </div>
+        ) : (
+          <div className="ofertas-grid">
+            {ofertas.map((oferta) => (
+              <a
+                key={oferta.id}
+                href={oferta.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="oferta-card"
+              >
+                {/* Badge descuento */}
+                <div className="descuento-badge">-{oferta.descuento}%</div>
+
+                {/* Imagen */}
+                <div className="oferta-img-wrap">
+                  {!imgErrors[oferta.id] ? (
+                    <img
+                      src={oferta.imagen}
+                      alt={oferta.nombre}
+                      className="oferta-img"
+                      loading="lazy"
+                      onError={() => handleImgError(oferta.id)}
+                    />
+                  ) : (
+                    <div className="oferta-img-placeholder">
+                      <span>📦</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Categoria */}
+                <span
+                  className="oferta-cat"
+                  style={{
+                    color: coloresCategoria[oferta.categoria] || "#666",
+                  }}
+                >
+                  {oferta.categoria.toUpperCase()}
+                </span>
+
+                {/* Nombre */}
+                <h3 className="oferta-nombre">{oferta.nombre}</h3>
+
+                {/* Precios */}
+                <div className="oferta-precios">
+                  <span className="precio-oferta">
+                    {oferta.precioOferta.toFixed(2)}€
+                  </span>
+                  <span className="precio-original">
+                    {oferta.precioOriginal.toFixed(2)}€
+                  </span>
+                  <span className="precio-ahorro">
+                    Ahorras {oferta.ahorro.toFixed(2)}€
+                  </span>
+                </div>
+
+                {/* Footer card */}
+                <div className="oferta-footer">
+                  <span className="oferta-votos">🔥 {oferta.votos}</span>
+                  <span className="oferta-tiempo">{oferta.tiempoPublicado}</span>
+                </div>
+
+                {/* CTA */}
+                <div className="oferta-cta">Ver en Amazon →</div>
+              </a>
+            ))}
+          </div>
+        )}
+
+        {/* BANNER TELEGRAM */}
+        <div className="telegram-banner">
+          <div className="telegram-banner-inner">
+            <div className="telegram-texto">
+              <strong>¿Quieres recibir las ofertas en tu móvil?</strong>
+              <p>Únete al canal de Telegram y te avisamos de cada chollo al instante</p>
+            </div>
+            <a
+              href={TELEGRAM_CANAL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-telegram-grande"
+            >
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" />
+              </svg>
+              Unirme al canal de Telegram
+            </a>
+          </div>
+        </div>
+      </main>
 
       {/* FOOTER */}
       <footer className="footer">
-        <div className="footer-inner">
-          <div className="footer-logo">Chollo<span>Master</span></div>
-          <p className="footer-afiliado">
-            CholloMaster participa en el Programa de Afiliados de Amazon EU. Como afiliado de Amazon,
-            obtenemos ingresos por las compras realizadas a traves de nuestros enlaces.
-            Esto no supone ningun coste adicional para ti.
-          </p>
-        </div>
+        <p className="footer-brand">
+          Chollo<span>Master</span> © {new Date().getFullYear()}
+        </p>
+        <p className="footer-legal">
+          CholloMaster participa en el Programa de Afiliados de Amazon EU. Los precios
+          y disponibilidad pueden variar. Última comprobación:{" "}
+          {new Date().toLocaleDateString("es-ES")}
+        </p>
       </footer>
     </>
   );

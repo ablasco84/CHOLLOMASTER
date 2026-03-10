@@ -1,280 +1,452 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+/* styles/globals.css - CholloMaster v3 */
+
+/* RESET */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --naranja: #FF6B00;
-  --naranja-hover: #E55F00;
-  --naranja-suave: #FFF3E8;
-  --naranja-borde: #FFD9B8;
-  --blanco: #FFFFFF;
-  --gris-fondo: #F7F7F5;
-  --gris-claro: #F0EFED;
-  --gris-borde: #E5E5E0;
-  --gris-medio: #999990;
-  --negro: #111110;
-  --texto: #1A1A18;
-  --texto-suave: #6B6B65;
-  --verde: #16A34A;
-  --verde-suave: #DCFCE7;
-  --sombra: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06);
-  --sombra-hover: 0 4px 8px rgba(0,0,0,0.08), 0 12px 32px rgba(0,0,0,0.1);
-  --radio: 14px;
+  --naranja: #ff6b00;
+  --naranja-hover: #e55e00;
+  --verde: #00a651;
+  --verde-claro: #e8f8ef;
+  --rojo: #e53935;
+  --negro: #1a1a1a;
+  --texto: #333;
+  --texto-suave: #777;
+  --fondo: #f5f5f5;
+  --blanco: #fff;
+  --borde: #e5e5e5;
+  --telegram: #0088cc;
+  --telegram-hover: #006fa8;
+  --sombra: 0 1px 3px rgba(0,0,0,0.08);
+  --sombra-hover: 0 4px 12px rgba(0,0,0,0.12);
+  --radius: 8px;
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
-body { background: var(--blanco); color: var(--texto); font-family: 'Inter', sans-serif; line-height: 1.6; }
-a { color: inherit; text-decoration: none; }
-button { cursor: pointer; font-family: inherit; border: none; background: none; }
+html { scroll-behavior: smooth; }
 
-/* HEADER */
+body {
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--fondo);
+  color: var(--texto);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { text-decoration: none; color: inherit; }
+
+/* ===================== HEADER ===================== */
 .header {
-  position: sticky; top: 0; z-index: 100;
-  background: rgba(255,255,255,0.92);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--gris-borde);
+  background: var(--blanco);
+  border-bottom: 1px solid var(--borde);
+  padding: 10px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
-.header-inner {
-  max-width: 1200px; margin: 0 auto; padding: 0 24px;
-  height: 56px; display: flex; align-items: center; gap: 24px;
-}
-.logo {
-  font-weight: 700; font-size: 20px; letter-spacing: -0.3px;
-  color: var(--negro); flex-shrink: 0;
-}
-.logo span { color: var(--naranja); }
-.logo-dot {
-  display: inline-block; width: 6px; height: 6px;
-  background: var(--naranja); border-radius: 50%;
-  margin-left: 2px; margin-bottom: 1px;
-  animation: blink 2s ease-in-out infinite;
-}
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
-}
-.header-tagline {
-  flex: 1; font-size: 13px; color: var(--texto-suave);
-  font-weight: 400; white-space: nowrap; overflow: hidden;
-  text-overflow: ellipsis;
-}
-.header-nav { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-.nav-link {
-  font-size: 14px; font-weight: 500; color: var(--texto-suave);
-  padding: 6px 12px; border-radius: 8px; transition: all 0.2s;
-}
-.nav-link:hover { color: var(--texto); background: var(--gris-claro); }
-.nav-cta {
-  font-size: 13px; font-weight: 600; color: white;
-  background: var(--naranja); padding: 7px 16px;
-  border-radius: 8px; transition: all 0.2s;
-}
-.nav-cta:hover { background: var(--naranja-hover); }
 
-/* TICKER */
-.ticker-wrap { background: var(--negro); padding: 9px 0; overflow: hidden; }
-.ticker-track {
-  display: flex; animation: ticker 45s linear infinite;
+.header-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.header-left {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+
+.logo {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--negro);
   white-space: nowrap;
 }
-.ticker-item { font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.55); padding: 0 28px; flex-shrink: 0; }
-.ticker-item strong { color: var(--naranja); font-weight: 600; }
-.ticker-sep { margin-left: 28px; opacity: 0.25; }
-@keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+.logo span { color: var(--naranja); }
 
-/* FILTROS */
-.filters-wrap {
-  background: white; border-bottom: 1px solid var(--gris-borde);
-  padding: 12px 24px; position: sticky; top: 56px; z-index: 50;
+.tagline {
+  font-size: 12px;
+  color: var(--texto-suave);
+  white-space: nowrap;
 }
-.filters-inner {
-  max-width: 1200px; margin: 0 auto;
-  display: flex; align-items: center; gap: 6px;
-  overflow-x: auto; scrollbar-width: none;
-}
-.filters-inner::-webkit-scrollbar { display: none; }
-.filter-label {
-  font-size: 11px; font-weight: 600; color: var(--texto-suave);
-  text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; margin-right: 4px;
-}
-.filter-btn {
-  font-size: 13px; font-weight: 500; color: var(--texto-suave);
-  background: var(--gris-fondo); border: 1px solid var(--gris-borde);
-  padding: 5px 14px; border-radius: 100px; white-space: nowrap; transition: all 0.2s;
-}
-.filter-btn:hover { color: var(--texto); background: var(--gris-borde); }
-.filter-btn.activo { background: var(--naranja); border-color: var(--naranja); color: white; }
 
-/* DEALS SECTION */
-.deals-section { max-width: 1200px; margin: 0 auto; padding: 28px 24px 64px; }
-.deals-header { display: flex; align-items: baseline; gap: 10px; margin-bottom: 20px; }
-.deals-titulo { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; color: var(--negro); }
-.deals-count { font-size: 13px; color: var(--texto-suave); font-weight: 400; }
-.deals-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
-
-/* DEAL CARD */
-.deal-card {
-  background: white; border: 1px solid var(--gris-borde);
-  border-radius: var(--radio); overflow: hidden;
-  display: flex; flex-direction: column;
-  transition: all 0.22s ease;
-  animation: cardIn 0.35s ease both;
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
 }
-.deal-card:hover {
+
+.refresh-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--texto-suave);
+  background: var(--fondo);
+  padding: 5px 10px;
+  border-radius: 20px;
+}
+
+.refresh-dot {
+  width: 7px;
+  height: 7px;
+  background: var(--verde);
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+.btn-telegram {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--telegram);
+  color: var(--blanco);
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+.btn-telegram:hover { background: var(--telegram-hover); }
+
+/* ===================== FILTROS ===================== */
+.filtros-bar {
+  background: var(--blanco);
+  border-bottom: 1px solid var(--borde);
+  padding: 10px 20px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.filtros-bar::-webkit-scrollbar { display: none; }
+
+.filtros-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.filtro-btn {
+  padding: 6px 14px;
+  border: 1px solid var(--borde);
+  border-radius: 20px;
+  background: var(--blanco);
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--texto);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.filtro-btn:hover {
+  border-color: var(--naranja);
+  color: var(--naranja);
+}
+.filtro-btn.activo {
+  background: var(--naranja);
+  color: var(--blanco);
+  border-color: var(--naranja);
+}
+
+/* ===================== MAIN ===================== */
+.main {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* ===================== OFERTAS HEADER ===================== */
+.ofertas-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 16px 0 10px;
+}
+
+.ofertas-titulo {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--negro);
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.ofertas-count {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--texto-suave);
+  background: var(--fondo);
+  padding: 2px 10px;
+  border-radius: 12px;
+}
+
+.ofertas-update {
+  font-size: 12px;
+  color: var(--texto-suave);
+}
+
+/* ===================== GRID DE OFERTAS ===================== */
+.ofertas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+  padding-bottom: 30px;
+}
+
+.oferta-card {
+  background: var(--blanco);
+  border-radius: var(--radius);
+  border: 1px solid var(--borde);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+  transition: box-shadow 0.2s, transform 0.15s;
+  cursor: pointer;
+}
+.oferta-card:hover {
   box-shadow: var(--sombra-hover);
-  transform: translateY(-3px);
-  border-color: var(--naranja-borde);
-}
-@keyframes cardIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-.deal-card:nth-child(1) { animation-delay: 0.04s; }
-.deal-card:nth-child(2) { animation-delay: 0.08s; }
-.deal-card:nth-child(3) { animation-delay: 0.12s; }
-.deal-card:nth-child(4) { animation-delay: 0.16s; }
-.deal-card:nth-child(5) { animation-delay: 0.20s; }
-.deal-card:nth-child(6) { animation-delay: 0.24s; }
-
-.deal-img {
-  background: var(--gris-fondo); height: 190px;
-  display: flex; align-items: center; justify-content: center;
-  position: relative; overflow: hidden;
-}
-.deal-img img {
-  max-height: 160px; max-width: 80%; object-fit: contain;
-  transition: transform 0.3s ease;
-}
-.deal-card:hover .deal-img img { transform: scale(1.03); }
-.deal-img-placeholder { font-size: 44px; }
-
-.badge-descuento {
-  position: absolute; top: 10px; left: 10px;
-  background: var(--verde); color: white;
-  font-size: 11px; font-weight: 700;
-  padding: 3px 8px; border-radius: 5px;
+  transform: translateY(-2px);
 }
 
-.deal-body { padding: 14px; flex: 1; display: flex; flex-direction: column; gap: 7px; }
-.deal-cat { font-size: 10px; font-weight: 600; color: var(--naranja); text-transform: uppercase; letter-spacing: 1px; }
-.deal-nombre {
-  font-size: 13px; font-weight: 500; color: var(--texto);
-  line-height: 1.45; flex: 1;
-  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+/* Badge descuento */
+.descuento-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: var(--rojo);
+  color: var(--blanco);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  z-index: 2;
 }
-.deal-precios { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
-.precio-actual { font-size: 22px; font-weight: 700; color: var(--verde); letter-spacing: -0.5px; }
-.precio-antes { font-size: 13px; color: var(--gris-medio); text-decoration: line-through; }
+
+/* Imagen */
+.oferta-img-wrap {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #f9f9f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.oferta-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+.oferta-card:hover .oferta-img {
+  transform: scale(1.05);
+}
+
+.oferta-img-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  background: #f0f0f0;
+}
+
+/* Categoria */
+.oferta-cat {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+/* Nombre */
+.oferta-nombre {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--negro);
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 35px;
+}
+
+/* Precios */
+.oferta-precios {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.precio-oferta {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--rojo);
+}
+
+.precio-original {
+  font-size: 13px;
+  color: var(--texto-suave);
+  text-decoration: line-through;
+}
+
 .precio-ahorro {
-  font-size: 11px; font-weight: 600; color: var(--verde);
-  background: var(--verde-suave); padding: 2px 6px; border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--verde);
+  background: var(--verde-claro);
+  padding: 2px 6px;
+  border-radius: 3px;
 }
-.deal-footer {
-  display: flex; align-items: center; justify-content: space-between;
-  padding-top: 7px; border-top: 1px solid var(--gris-borde);
-}
-.deal-votos { font-size: 11px; color: var(--texto-suave); font-weight: 500; }
-.deal-tiempo { font-size: 11px; color: var(--texto-suave); }
-.deal-btn {
-  display: block; text-align: center;
-  background: var(--naranja); color: white;
-  font-size: 13px; font-weight: 600;
-  padding: 10px 14px; border-radius: 9px;
-  transition: all 0.2s; margin-top: 4px;
-}
-.deal-btn:hover { background: var(--naranja-hover); }
 
-/* COMO FUNCIONA */
-.como-funciona {
-  background: var(--gris-fondo); padding: 60px 24px;
-  border-top: 1px solid var(--gris-borde); border-bottom: 1px solid var(--gris-borde);
+/* Footer card */
+.oferta-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: var(--texto-suave);
 }
-.section-inner { max-width: 1200px; margin: 0 auto; }
-.section-titulo {
-  font-size: 20px; font-weight: 700; letter-spacing: -0.3px;
-  color: var(--negro); margin-bottom: 32px;
-}
-.pasos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-.paso {
-  background: white; border: 1px solid var(--gris-borde);
-  border-radius: var(--radio); padding: 24px;
-  transition: all 0.25s;
-}
-.paso:hover { box-shadow: var(--sombra-hover); transform: translateY(-3px); }
-.paso-num {
-  font-size: 36px; font-weight: 800; color: var(--naranja-borde);
-  line-height: 1; margin-bottom: 10px;
-}
-.paso-titulo { font-size: 15px; font-weight: 600; color: var(--negro); margin-bottom: 6px; }
-.paso-texto { font-size: 13px; color: var(--texto-suave); line-height: 1.7; }
 
-/* ALERTA TELEGRAM */
-.alerta-section { background: var(--negro); padding: 60px 24px; }
-.alerta-inner { max-width: 800px; margin: 0 auto; }
-.alerta-top { margin-bottom: 36px; }
-.alerta-titulo {
-  font-size: clamp(22px, 3vw, 32px); font-weight: 700;
-  letter-spacing: -0.5px; color: white; margin-bottom: 10px;
-}
-.alerta-sub { font-size: 15px; color: rgba(255,255,255,0.45); line-height: 1.7; margin-bottom: 28px; }
-.alerta-ok {
-  background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.25);
-  border-radius: 10px; padding: 16px 20px; color: #4ade80; font-size: 14px;
-}
-.alerta-form { display: flex; flex-direction: column; gap: 10px; max-width: 480px; }
-.alerta-input {
-  background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1);
-  color: white; font-family: 'Inter', sans-serif; font-size: 14px;
-  padding: 12px 16px; border-radius: 9px; outline: none; transition: border 0.2s;
-}
-.alerta-input::placeholder { color: rgba(255,255,255,0.25); }
-.alerta-input:focus { border-color: var(--naranja); }
-.alerta-btn {
-  background: var(--naranja); color: white;
-  font-size: 14px; font-weight: 600;
-  padding: 12px 20px; border-radius: 9px;
-  transition: all 0.2s; border: none; cursor: pointer; width: fit-content;
-}
-.alerta-btn:hover { background: var(--naranja-hover); }
-.alerta-nota { font-size: 11px; color: rgba(255,255,255,0.2); margin-top: 8px; }
+.oferta-votos { font-weight: 600; }
 
-.alerta-canal {
-  display: flex; align-items: center; justify-content: space-between;
-  background: rgba(42,171,238,0.1); border: 1px solid rgba(42,171,238,0.2);
-  border-radius: 12px; padding: 20px 24px; gap: 16px;
+/* CTA */
+.oferta-cta {
+  background: var(--naranja);
+  color: var(--blanco);
+  text-align: center;
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: auto;
+  transition: background 0.2s;
 }
-.canal-titulo { font-size: 15px; font-weight: 600; color: white; margin-bottom: 4px; }
-.canal-sub { font-size: 13px; color: rgba(255,255,255,0.4); }
-.canal-btn {
-  background: #2AABEE; color: white; font-size: 14px; font-weight: 600;
-  padding: 10px 20px; border-radius: 9px; transition: all 0.2s;
-  white-space: nowrap; flex-shrink: 0;
+.oferta-card:hover .oferta-cta {
+  background: var(--naranja-hover);
 }
-.canal-btn:hover { background: #1e9bd9; }
 
-/* FOOTER */
-.footer { background: var(--gris-fondo); border-top: 1px solid var(--gris-borde); padding: 32px 24px; }
-.footer-inner { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; }
-.footer-logo { font-size: 18px; font-weight: 700; color: var(--negro); }
-.footer-logo span { color: var(--naranja); }
-.footer-afiliado { font-size: 11px; color: var(--gris-medio); max-width: 680px; line-height: 1.8; }
+/* ===================== TELEGRAM BANNER ===================== */
+.telegram-banner {
+  margin: 20px 0 30px;
+  background: linear-gradient(135deg, #0088cc 0%, #00aaee 100%);
+  border-radius: 12px;
+  padding: 24px 30px;
+}
 
-/* ESTADOS */
-.loading-state { grid-column: 1 / -1; padding: 60px 0; text-align: center; }
-.loading-spinner {
-  width: 32px; height: 32px; border: 3px solid var(--gris-borde);
-  border-top-color: var(--naranja); border-radius: 50%;
-  animation: spin 0.8s linear infinite; margin: 0 auto 14px;
+.telegram-banner-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.telegram-texto strong {
+  font-size: 16px;
+  color: var(--blanco);
+  display: block;
+  margin-bottom: 4px;
+}
+.telegram-texto p {
+  font-size: 13px;
+  color: rgba(255,255,255,0.85);
+}
+
+.btn-telegram-grande {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--blanco);
+  color: var(--telegram);
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn-telegram-grande:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+}
+
+/* ===================== LOADING ===================== */
+.loading {
+  padding: 80px 0;
+  text-align: center;
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--borde);
+  border-top-color: var(--naranja);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin: 0 auto 12px;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
-.loading-texto { font-size: 14px; color: var(--texto-suave); }
 
-/* RESPONSIVE */
+.loading p {
+  font-size: 14px;
+  color: var(--texto-suave);
+}
+
+/* ===================== FOOTER ===================== */
+.footer {
+  background: var(--blanco);
+  border-top: 1px solid var(--borde);
+  padding: 20px;
+  text-align: center;
+}
+
+.footer-brand {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--negro);
+  margin-bottom: 6px;
+}
+.footer-brand span { color: var(--naranja); }
+
+.footer-legal {
+  font-size: 11px;
+  color: var(--texto-suave);
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* ===================== RESPONSIVE ===================== */
 @media (max-width: 900px) {
-  .pasos { grid-template-columns: 1fr; max-width: 440px; }
-  .header-tagline { display: none; }
+  .header-inner { flex-wrap: wrap; }
+  .tagline { display: none; }
+  .refresh-badge { display: none; }
+  .ofertas-grid { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; }
+  .telegram-banner-inner { flex-direction: column; text-align: center; }
 }
-@media (max-width: 640px) {
-  .deals-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-  .alerta-canal { flex-direction: column; align-items: flex-start; }
-  .header-nav .nav-link { display: none; }
-}
-@media (max-width: 440px) {
-  .deals-grid { grid-template-columns: 1fr; }
+
+@media (max-width: 500px) {
+  .ofertas-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .oferta-card { padding: 10px; }
+  .precio-oferta { font-size: 18px; }
+  .oferta-nombre { font-size: 12px; min-height: 32px; }
+  .logo { font-size: 18px; }
+  .header { padding: 8px 12px; }
+  .main { padding: 0 10px; }
 }
