@@ -77,14 +77,18 @@ function calcularDescuentoPorcentaje(precio, precioAntes) {
   return Math.round((1 - precio / precioAntes) * 100);
 }
 
+function imgUrl(asin) {
+  return `https://ws-eu.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=${asin}&Format=_SL250_&ID=AsinImage&MarketPlace=ES&ServiceVersion=20070822&WS=1`;
+}
+
 function getDealsEjemplo() {
   return [
-    { id: 'ej1', titulo: 'Echo Dot 5a Gen - Altavoz inteligente Alexa', enlace: buildLink('B09B8YWXDF'), imagen: 'https://m.media-amazon.com/images/I/71GTpNiNkCL._AC_SL1000_.jpg', precio: 21.99, precioAntes: 54.99, descuento: 60, ahorro: 33.00, categoria: 'Hogar', fecha: new Date().toISOString(), votos: 342 },
-    { id: 'ej2', titulo: 'Samsung Galaxy Buds2 Pro - Auriculares inalambricos con cancelacion de ruido', enlace: buildLink('B0B4BSMFBD'), imagen: 'https://m.media-amazon.com/images/I/71VEEqP8g3L._AC_SL1500_.jpg', precio: 89.00, precioAntes: 229.00, descuento: 61, ahorro: 140.00, categoria: 'Audio', fecha: new Date().toISOString(), votos: 218 },
-    { id: 'ej3', titulo: 'Kindle Paperwhite 16GB - Pantalla 6.8 pulgadas sin reflejos', enlace: buildLink('B09TMZKQR3'), imagen: 'https://m.media-amazon.com/images/I/61e1MhMVOlL._AC_SL1000_.jpg', precio: 94.99, precioAntes: 159.99, descuento: 41, ahorro: 65.00, categoria: 'Libros', fecha: new Date().toISOString(), votos: 423 },
-    { id: 'ej4', titulo: 'Fire TV Stick 4K Max - Dispositivo de streaming con Wi-Fi 6E', enlace: buildLink('B0BP9SNVH9'), imagen: 'https://m.media-amazon.com/images/I/51TjJOTfslL._AC_SL1000_.jpg', precio: 34.99, precioAntes: 69.99, descuento: 50, ahorro: 35.00, categoria: 'TV y Monitores', fecha: new Date().toISOString(), votos: 312 },
-    { id: 'ej5', titulo: 'Xiaomi Redmi Buds 5 - Auriculares inalambricos 46dB ANC', enlace: buildLink('B0CQTQ5TPP'), imagen: 'https://m.media-amazon.com/images/I/61qNCIs-WoL._AC_SL1500_.jpg', precio: 19.99, precioAntes: 49.99, descuento: 60, ahorro: 30.00, categoria: 'Audio', fecha: new Date().toISOString(), votos: 189 },
-    { id: 'ej6', titulo: 'Instant Pot Duo 7 en 1 - Olla a presion electrica 5.7L', enlace: buildLink('B07YNFNFW3'), imagen: 'https://m.media-amazon.com/images/I/71V4fwSiPiL._AC_SL1500_.jpg', precio: 69.99, precioAntes: 99.99, descuento: 30, ahorro: 30.00, categoria: 'Hogar', fecha: new Date().toISOString(), votos: 445 },
+    { id: 'ej1', titulo: 'Echo Pop - Altavoz inteligente con Alexa, sonido potente', enlace: buildLink('B0CX6JDTPJ'), imagen: imgUrl('B0CX6JDTPJ'), precio: 27.99, precioAntes: 54.99, descuento: 49, ahorro: 27.00, categoria: 'Hogar', fecha: new Date().toISOString(), votos: 342 },
+    { id: 'ej2', titulo: 'Fire TV Stick HD - Mando por voz con Alexa', enlace: buildLink('B0CF4Y9423'), imagen: imgUrl('B0CF4Y9423'), precio: 24.99, precioAntes: 49.99, descuento: 50, ahorro: 25.00, categoria: 'TV y Monitores', fecha: new Date().toISOString(), votos: 312 },
+    { id: 'ej3', titulo: 'Kindle 16GB - Pantalla sin reflejos, 6 pulgadas', enlace: buildLink('B0CVDFMVJ7'), imagen: imgUrl('B0CVDFMVJ7'), precio: 94.99, precioAntes: 129.99, descuento: 27, ahorro: 35.00, categoria: 'Libros', fecha: new Date().toISOString(), votos: 423 },
+    { id: 'ej4', titulo: 'Echo Dot 5a generacion - Altavoz inteligente con Alexa', enlace: buildLink('B09B93ZDY4'), imagen: imgUrl('B09B93ZDY4'), precio: 34.99, precioAntes: 64.99, descuento: 46, ahorro: 30.00, categoria: 'Hogar', fecha: new Date().toISOString(), votos: 289 },
+    { id: 'ej5', titulo: 'Xiaomi Redmi Buds 5 - Auriculares inalambricos ANC 46dB', enlace: buildLink('B0CQTQ5TPP'), imagen: imgUrl('B0CQTQ5TPP'), precio: 19.99, precioAntes: 49.99, descuento: 60, ahorro: 30.00, categoria: 'Audio', fecha: new Date().toISOString(), votos: 189 },
+    { id: 'ej6', titulo: 'Cecotec Freidora de Aire Cecofry 5000 - 5 litros sin aceite', enlace: buildLink('B09NS7GS9X'), imagen: imgUrl('B09NS7GS9X'), precio: 44.90, precioAntes: 89.90, descuento: 50, ahorro: 45.00, categoria: 'Hogar', fecha: new Date().toISOString(), votos: 445 },
   ];
 }
 
