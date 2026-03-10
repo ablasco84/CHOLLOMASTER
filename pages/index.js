@@ -167,73 +167,51 @@ export default function Home() {
             <p>Buscando chollos...</p>
           </div>
         ) : (
-          <div className="ofertas-grid">
-            {ofertas.map((oferta) => (
-              <a
-                key={oferta.id}
-                href={oferta.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="oferta-card"
-              >
-                {/* Badge descuento */}
-                <div className="descuento-badge">-{oferta.descuento}%</div>
-
-                {/* Imagen */}
-                <div className="oferta-img-wrap">
-                  {!imgErrors[oferta.id] ? (
-                    <img
-                      src={oferta.imagen}
-                      alt={oferta.nombre}
-                      className="oferta-img"
-                      loading="lazy"
-                      onError={() => handleImgError(oferta.id)}
-                    />
-                  ) : (
-                    <div className="oferta-img-placeholder">
-                      <span>📦</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Categoria */}
-                <span
-                  className="oferta-cat"
-                  style={{
-                    color: coloresCategoria[oferta.categoria] || "#666",
-                  }}
-                >
-                  {oferta.categoria.toUpperCase()}
-                </span>
-
-                {/* Nombre */}
-                <h3 className="oferta-nombre">{oferta.nombre}</h3>
-
-                {/* Precios */}
-                <div className="oferta-precios">
-                  <span className="precio-oferta">
-                    {oferta.precioOferta.toFixed(2)}€
-                  </span>
-                  <span className="precio-original">
-                    {oferta.precioOriginal.toFixed(2)}€
-                  </span>
-                  <span className="precio-ahorro">
-                    Ahorras {oferta.ahorro.toFixed(2)}€
-                  </span>
-                </div>
-
-                {/* Footer card */}
-                <div className="oferta-footer">
-                  <span className="oferta-votos">🔥 {oferta.votos}</span>
-                  <span className="oferta-tiempo">{oferta.tiempoPublicado}</span>
-                </div>
-
-                {/* CTA */}
-                <div className="oferta-cta">Ver en Amazon →</div>
-              </a>
-            ))}
-          </div>
-        )}
+ <div className="ofertas-grid">
+{ofertas.map((oferta) => (
+<div key={oferta.id} className="oferta-card">
+<div className="descuento-badge">-{oferta.descuento}%</div>
+<div className="oferta-img-wrap">
+{!imgErrors[oferta.id] ? (
+<img
+src={oferta.imagen}
+alt={oferta.nombre}
+className="oferta-img"
+loading="lazy"
+onError={() => handleImgError(oferta.id)}
+/>
+) : (
+<div className="oferta-img-placeholder">
+<span>📦</span>
+</div>
+)}
+</div>
+<span className="oferta-cat" style={{ color: coloresCategoria[oferta.categoria] || "#666" }}>
+{oferta.categoria.toUpperCase()}
+</span>
+<h3 className="oferta-nombre">{oferta.nombre}</h3>
+<div className="oferta-precios">
+<span className="precio-oferta">{oferta.precioOferta.toFixed(2)}€</span>
+<span className="precio-original">{oferta.precioOriginal.toFixed(2)}€</span>
+<span className="precio-ahorro">Ahorras {oferta.ahorro.toFixed(2)}€</span>
+</div>
+<div className="oferta-footer">
+<span className="oferta-votos">🔥 {oferta.votos}</span>
+<span className="oferta-tiempo">{oferta.tiempoPublicado}</span>
+</div>
+<a
+href={oferta.url}
+target="_blank"
+rel="noopener noreferrer"
+className="oferta-cta"
+style={{ display: "block", textDecoration: "none" }}
+>
+Ver en Amazon →
+</a>
+</div>
+))}
+</div>
+)}
 
         {/* BANNER TELEGRAM */}
         <div className="telegram-banner">
