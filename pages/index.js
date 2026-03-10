@@ -226,7 +226,7 @@ export default function Home() {
           <nav className="header-nav">
             <a href="#chollos" className="nav-link">Chollos</a>
             <a href="#alertas" className="nav-link">Alertas</a>
-            <a href="#alertas" className="nav-cta">Gratis →</a>
+            <a href="#alertas" className="nav-cta">Alertas gratis →</a>
           </nav>
         </div>
       </header>
