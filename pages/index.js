@@ -19,7 +19,9 @@ function formatPrecio(n) {
 
 function DealCard({ deal }) {
   const [imgError, setImgError] = useState(false);
-  const ahorro = deal.precio && deal.precioAntes
+  const ahorro = deal.ahorro
+    ? deal.ahorro.toFixed(2)
+    : deal.precio && deal.precioAntes
     ? (deal.precioAntes - deal.precio).toFixed(2)
     : null;
 

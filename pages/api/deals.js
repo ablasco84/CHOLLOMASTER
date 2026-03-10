@@ -6,42 +6,81 @@ function buildDirectLink(asin) {
   return `https://www.amazon.es/dp/${asin}?tag=${AFFILIATE_TAG}`;
 }
 
+function buildSearchLink(titulo) {
+  return `https://www.amazon.es/s?k=${encodeURIComponent(titulo.slice(0, 60))}&tag=${AFFILIATE_TAG}`;
+}
+
 function extractASIN(text) {
   if (!text) return null;
-  // ASIN es siempre 10 caracteres: letra B + 9 alfanumericos
   const patrones = [
-    /amazon\.es\/dp\/([A-Z0-9]{10})/,
-    /amazon\.es\/gp\/product\/([A-Z0-9]{10})/,
-    /amazon\.es\/[^/]+\/dp\/([A-Z0-9]{10})/,
-    /\/dp\/([A-Z0-9]{10})/,
-    /\/gp\/product\/([A-Z0-9]{10})/,
-    /\/(B[A-Z0-9]{9})\//,
-    /\/(B[A-Z0-9]{9})[\s"'?&]/,
-    /asin=([A-Z0-9]{10})/i,
-    /ASIN%3D([A-Z0-9]{10})/i,
+    /amazon\.es\/dp\/([B][A-Z0-9]{9})/,
+    /amazon\.es\/gp\/product\/([B][A-Z0-9]{9})/,
+    /amazon\.es\/[^/]+\/dp\/([B][A-Z0-9]{9})/,
+    /\/dp\/([B][A-Z0-9]{9})/,
+    /\/gp\/product\/([B][A-Z0-9]{9})/,
+    /\/(B[A-Z0-9]{9})(?:\/|\?|&|"|\s)/,
+    /asin[=:]([B][A-Z0-9]{9})/i,
+    /ASIN%3D([B][A-Z0-9]{9})/i,
+    /"asin":"([B][A-Z0-9]{9})"/i,
+    /data-asin="([B][A-Z0-9]{9})"/i,
   ];
   for (const p of patrones) {
     const m = text.match(p);
-    if (m && m[1] && m[1].startsWith('B')) return m[1];
+    if (m && m[1]) return m[1];
   }
   return null;
 }
 
-async function resolveChollometroLink(url) {
+async function getAmazonLinkFromChollometro(url) {
   try {
     const r = await fetch(url, {
-      method: 'GET',
-      redirect: 'follow',
-      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; CholloMaster/2.0)' },
-      signal: AbortSignal.timeout(5000),
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml',
+        'Accept-Language': 'es-ES,es;q=0.9',
+      },
+      signal: AbortSignal.timeout(6000),
     });
-    const finalUrl = r.url;
-    const asin = extractASIN(finalUrl);
-    if (asin) return buildDirectLink(asin);
+
+    // Si redirige a Amazon directamente
+    if (r.url && r.url.includes('amazon.es')) {
+      const asin = extractASIN(r.url);
+      if (asin) return buildDirectLink(asin);
+    }
+
     const html = await r.text();
-    const asin2 = extractASIN(html);
-    if (asin2) return buildDirectLink(asin2);
-  } catch (e) {}
+
+    // Busca el boton "Ir al chollo" o links de Amazon en el HTML
+    const patrones = [
+      /href="(https?:\/\/(?:www\.)?amazon\.es\/(?:dp|gp\/product)\/[B][A-Z0-9]{9}[^"]*)"/i,
+      /href="(https?:\/\/(?:www\.)?amazon\.es\/[^"]*\/dp\/[B][A-Z0-9]{9}[^"]*)"/i,
+      /"merchant_link":"(https?:\/\/[^"]*amazon\.es[^"]*)"/i,
+      /data-link="(https?:\/\/[^"]*amazon\.es[^"]*)"/i,
+    ];
+
+    for (const p of patrones) {
+      const m = html.match(p);
+      if (m && m[1]) {
+        const asin = extractASIN(m[1]);
+        if (asin) return buildDirectLink(asin);
+        // Si el link ya es de Amazon aunque no tenga ASIN visible
+        if (m[1].includes('amazon.es')) {
+          try {
+            const u = new URL(m[1]);
+            u.searchParams.set('tag', AFFILIATE_TAG);
+            return u.toString();
+          } catch {}
+        }
+      }
+    }
+
+    // Ultimo intento: extraer cualquier ASIN del HTML
+    const asin = extractASIN(html);
+    if (asin) return buildDirectLink(asin);
+
+  } catch (e) {
+    console.log('Error fetching chollometro page:', e.message);
+  }
   return null;
 }
 
@@ -65,27 +104,39 @@ function getCategoriaDesdeTexto(texto) {
   return 'Oferta';
 }
 
-function extractDescuento(titulo, content) {
-  const texto = titulo + ' ' + (content || '');
+function extractDescuento(texto) {
   const m = texto.match(/-\s*(\d+)\s*%/);
   return m ? parseInt(m[1]) : null;
 }
 
-function extractPrecio(titulo, content) {
-  const texto = titulo + ' ' + (content || '');
-  const patrones = [/(\d+[,.]\d{2})\s*€/, /€\s*(\d+[,.]\d{2})/, /(\d+)\s*€/];
-  for (const p of patrones) {
-    const m = texto.match(p);
-    if (m) return parseFloat(m[1].replace(',', '.'));
+function extractPrecios(texto) {
+  // Busca patrones como "49,95€" o "19,58€" o "antes: 25€"
+  const matches = texto.match(/(\d+[,.]\d{2})\s*€/g) || texto.match(/(\d+)\s*€/g);
+  if (!matches || matches.length === 0) return { precio: null, precioAntes: null };
+  const precios = matches.map(p => parseFloat(p.replace('€','').replace(',','.').trim()));
+  if (precios.length === 1) return { precio: precios[0], precioAntes: null };
+  // El precio mas bajo es el actual, el mas alto es el anterior
+  const min = Math.min(...precios);
+  const max = Math.max(...precios);
+  return { precio: min, precioAntes: max > min ? max : null };
+}
+
+function calcularAhorro(precio, precioAntes, descuento) {
+  if (precio && precioAntes && precioAntes > precio) {
+    return Math.round((precioAntes - precio) * 100) / 100;
+  }
+  if (precio && descuento) {
+    const antes = Math.round(precio / (1 - descuento / 100) * 100) / 100;
+    return Math.round((antes - precio) * 100) / 100;
   }
   return null;
 }
 
 function getDealsEjemplo() {
   return [
-    { id: 'ej1', titulo: 'Echo Dot 5a Gen - Altavoz inteligente Alexa', enlace: buildDirectLink('B09B8YWXDF'), imagen: 'https://m.media-amazon.com/images/I/71GTpNiNkCL._AC_SL1000_.jpg', precio: 21.99, precioAntes: 54.99, descuento: 60, categoria: 'Hogar', fecha: new Date().toISOString(), votos: 342 },
-    { id: 'ej2', titulo: 'Samsung Galaxy Buds2 Pro - Auriculares cancelacion de ruido', enlace: buildDirectLink('B0B4BSMFBD'), imagen: 'https://m.media-amazon.com/images/I/71VEEqP8g3L._AC_SL1500_.jpg', precio: 89.00, precioAntes: 229.00, descuento: 61, categoria: 'Audio', fecha: new Date().toISOString(), votos: 218 },
-    { id: 'ej3', titulo: 'Kindle Paperwhite 16GB - Pantalla 6.8 sin reflejos', enlace: buildDirectLink('B09TMZKQR3'), imagen: 'https://m.media-amazon.com/images/I/61e1MhMVOlL._AC_SL1000_.jpg', precio: 94.99, precioAntes: 159.99, descuento: 41, categoria: 'Libros', fecha: new Date().toISOString(), votos: 423 },
+    { id: 'ej1', titulo: 'Echo Dot 5a Gen - Altavoz inteligente Alexa', enlace: buildDirectLink('B09B8YWXDF'), imagen: 'https://m.media-amazon.com/images/I/71GTpNiNkCL._AC_SL1000_.jpg', precio: 21.99, precioAntes: 54.99, descuento: 60, ahorro: 33.00, categoria: 'Hogar', fecha: new Date().toISOString(), votos: 342 },
+    { id: 'ej2', titulo: 'Samsung Galaxy Buds2 Pro - Auriculares cancelacion de ruido', enlace: buildDirectLink('B0B4BSMFBD'), imagen: 'https://m.media-amazon.com/images/I/71VEEqP8g3L._AC_SL1500_.jpg', precio: 89.00, precioAntes: 229.00, descuento: 61, ahorro: 140.00, categoria: 'Audio', fecha: new Date().toISOString(), votos: 218 },
+    { id: 'ej3', titulo: 'Kindle Paperwhite 16GB - Pantalla 6.8 sin reflejos', enlace: buildDirectLink('B09TMZKQR3'), imagen: 'https://m.media-amazon.com/images/I/61e1MhMVOlL._AC_SL1000_.jpg', precio: 94.99, precioAntes: 159.99, descuento: 41, ahorro: 65.00, categoria: 'Libros', fecha: new Date().toISOString(), votos: 423 },
   ];
 }
 
@@ -97,43 +148,38 @@ async function fetchDeals() {
   const parser = new Parser({
     timeout: 8000,
     headers: { 'User-Agent': 'Mozilla/5.0 (compatible; CholloMaster/2.0)' },
-    customFields: { item: ['link', 'guid'] },
   });
 
-  const feeds = [
-    'https://www.chollometro.com/rss',
-    'https://www.dealabs.com/rss',
-  ];
-
+  const feeds = ['https://www.chollometro.com/rss', 'https://www.dealabs.com/rss'];
   let items = [];
 
   for (const url of feeds) {
     try {
       const feed = await parser.parseURL(url);
-      const parsed = await Promise.all(feed.items.slice(0, 20).map(async (item, i) => {
+      const parsed = await Promise.all(feed.items.slice(0, 15).map(async (item, i) => {
         const content = item.content || item.summary || item['content:encoded'] || '';
         const titulo = item.title || 'Oferta';
         const itemLink = item.link || item.guid || '';
+        const textoCompleto = titulo + ' ' + content;
 
-        // 1. Intenta extraer ASIN del contenido RSS directamente
+        // 1. Busca ASIN en el contenido RSS
         let asin = extractASIN(content) || extractASIN(itemLink);
         let enlace = null;
 
         if (asin) {
           enlace = buildDirectLink(asin);
-        } else if (itemLink && itemLink.includes('chollometro.com')) {
-          // 2. Sigue el link de Chollometro para encontrar el ASIN real
-          enlace = await resolveChollometroLink(itemLink);
+        } else if (itemLink && (itemLink.includes('chollometro.com') || itemLink.includes('dealabs.com'))) {
+          // 2. Entra en la pagina del chollo para encontrar el link de Amazon
+          enlace = await getAmazonLinkFromChollometro(itemLink);
         }
 
-        // 3. Si no hay enlace directo, construye busqueda pero solo como ultimo recurso
-        if (!enlace) {
-          enlace = `https://www.amazon.es/s?k=${encodeURIComponent(titulo.slice(0, 60))}&tag=${AFFILIATE_TAG}`;
-        }
+        if (!enlace) enlace = buildSearchLink(titulo);
 
         const img = extractImageFromContent(content);
-        const desc = extractDescuento(titulo, content);
-        const precio = extractPrecio(titulo, content);
+        const descuento = extractDescuento(textoCompleto);
+        const { precio, precioAntes } = extractPrecios(textoCompleto);
+        const precioAntesCalc = precioAntes || (precio && descuento ? Math.round(precio / (1 - descuento / 100) * 100) / 100 : null);
+        const ahorro = calcularAhorro(precio, precioAntesCalc, descuento);
         const cat = getCategoriaDesdeTexto(titulo);
 
         return {
@@ -142,8 +188,9 @@ async function fetchDeals() {
           enlace,
           imagen: img,
           precio,
-          precioAntes: precio && desc ? Math.round(precio / (1 - desc / 100) * 100) / 100 : null,
-          descuento: desc,
+          precioAntes: precioAntesCalc,
+          descuento,
+          ahorro,
           categoria: cat,
           fecha: item.pubDate || new Date().toISOString(),
           votos: Math.floor(Math.random() * 300) + 20,
