@@ -16,6 +16,13 @@ const CATALOGO = [
   { nombre: "Fire TV Stick 4K Select - Streaming 4K", precioOriginal: 54.99, precioOferta: 28.99, descuento: 47, asin: "B0CN41GMDK", categoria: "Amazon" },
   { nombre: "Fire TV Stick 4K Plus - WiFi 6 Dolby Vision", precioOriginal: 69.99, precioOferta: 37.99, descuento: 46, asin: "B0F7ZFWVTC", categoria: "Amazon" },
   { nombre: "Echo Dot 5ª gen - Altavoz inteligente Alexa", precioOriginal: 64.99, precioOferta: 44.99, descuento: 31, asin: "B09B8X9RGM", categoria: "Amazon" },
+  { nombre: "Melatonina Pura 1.99mg - 450 comprimidos", precioOriginal: 9.99, precioOferta: 8.54, descuento: 15, asin: "B0BWKDGNHG", categoria: "Salud" },
+  { nombre: "AF 4 Calcio para Tortugas de Agua", precioOriginal: 6.95, precioOferta: 5.94, descuento: 15, asin: "B0CZM47KP4", categoria: "Mascotas" },
+  { nombre: "Fideos Somen Secos Eaglobe 400g", precioOriginal: 3.95, precioOferta: 3.75, descuento: 5, asin: "B08N64ZVF9", categoria: "Supermercado" },
+  { nombre: "Mirín Japonés 400ml para teriyaki", precioOriginal: 9.82, precioOferta: 9.82, descuento: 0, asin: "B0BK5F9BXR", categoria: "Supermercado" },
+  { nombre: "STEP Fosa Séptica 16 pastillas", precioOriginal: 23.89, precioOferta: 22.70, descuento: 5, asin: "B01ETLB5QI", categoria: "Hogar" },
+  { nombre: "RAW Filtros Tips 500 uds - 10 libritos", precioOriginal: 5.60, precioOferta: 5.32, descuento: 5, asin: "B005JFFY02", categoria: "Otros" },
+  { nombre: "RAW Classic King Size pack 5 libritos", precioOriginal: 5.93, precioOferta: 5.63, descuento: 5, asin: "B008VEK6ME", categoria: "Otros" },
 ];
 
 function getRandomDeal() {

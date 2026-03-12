@@ -19,6 +19,15 @@ const CATALOGO_COMPLETO = [
   { nombre: "Fire TV Stick 4K Plus - WiFi 6, Dolby Vision/Atmos", categoria: "Amazon", precioOriginal: 69.99, precioOferta: 37.99, descuento: 46, imagen: "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=400&h=400&fit=crop", asin: "B0F7ZFWVTC", votos: 4341 },
   { nombre: "Echo Dot (5ª gen) - Altavoz inteligente con Alexa", categoria: "Amazon", precioOriginal: 64.99, precioOferta: 44.99, descuento: 31, imagen: "https://images.unsplash.com/photo-1543512214-318c7553f230?w=400&h=400&fit=crop", asin: "B09B8X9RGM", votos: 6421 },
 
+  // === 7 PRODUCTOS NUEVOS CON FOTOS Y PRECIOS REALES DE AMAZON.ES ===
+  { nombre: "Melatonina Pura 1.99mg - 450 comprimidos, 1 año", categoria: "Salud", precioOriginal: 9.99, precioOferta: 8.54, descuento: 15, imagen: "https://m.media-amazon.com/images/I/61J7RncK3xL._AC_SX679_.jpg", asin: "B0BWKDGNHG", votos: 3421 },
+  { nombre: "AF 4 Calcio para Tortugas de Agua - Pack fortalecedor", categoria: "Mascotas", precioOriginal: 6.95, precioOferta: 5.94, descuento: 15, imagen: "https://m.media-amazon.com/images/I/81FZaNYsX4L._AC_SX425_.jpg", asin: "B0CZM47KP4", votos: 432 },
+  { nombre: "Eaglobe Fideos Somen Secos 400g", categoria: "Supermercado", precioOriginal: 3.95, precioOferta: 3.75, descuento: 5, imagen: "https://m.media-amazon.com/images/I/815I-65qBgL._AC_SX522_.jpg", asin: "B08N64ZVF9", votos: 876 },
+  { nombre: "Mirín Japonés 400ml - Para teriyaki y marinados", categoria: "Supermercado", precioOriginal: 9.82, precioOferta: 9.82, descuento: 0, imagen: "https://m.media-amazon.com/images/I/417mTkeAIfL._AC_.jpg", asin: "B0BK5F9BXR", votos: 654 },
+  { nombre: "STEP Fosa Séptica - Limpia y elimina olores 16 pastillas", categoria: "Hogar", precioOriginal: 23.89, precioOferta: 22.70, descuento: 5, imagen: "https://m.media-amazon.com/images/I/91jwo09UTeS._AC_SX679_.jpg", asin: "B01ETLB5QI", votos: 1234 },
+  { nombre: "RAW Filtros Tips 500 unidades - 10 libritos de 50", categoria: "Otros", precioOriginal: 5.60, precioOferta: 5.32, descuento: 5, imagen: "https://m.media-amazon.com/images/I/71Vn6Ic9WZL._AC_SX679_PIbundle-10,TopRight,0,0_SH20_.jpg", asin: "B005JFFY02", votos: 5678 },
+  { nombre: "RAW Classic King Size - Papel de liar, pack de 5", categoria: "Otros", precioOriginal: 5.93, precioOferta: 5.63, descuento: 5, imagen: "https://m.media-amazon.com/images/I/81Up1C4P8hL._AC_SX679_.jpg", asin: "B008VEK6ME", votos: 4321 },
+
   // === TECNOLOGÍA ===
   { nombre: "Sony WH-1000XM5 - Auriculares con cancelación ruido", categoria: "Tecnología", precioOriginal: 228.99, precioOferta: 199.00, descuento: 13, imagen: "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=400&h=400&fit=crop", asin: "B09XS7JWHH", votos: 1123 },
   { nombre: "JBL Tune Flex 2 - Auriculares Bluetooth TWS", categoria: "Tecnología", precioOriginal: 99.99, precioOferta: 61.99, descuento: 38, imagen: "https://images.unsplash.com/photo-1606220588913-b3aacb4d2f46?w=400&h=400&fit=crop", asin: "B0DG1JQQ41", votos: 654 },

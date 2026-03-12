@@ -78,6 +78,7 @@ export default function Home() {
     "Papelería": "#6366f1",
     Herramientas: "#ca8a04",
     Salud: "#0891b2",
+    Otros: "#78716c",
   };
 
   return (
@@ -178,7 +179,7 @@ export default function Home() {
                 className="oferta-card"
               >
                 {/* Badge descuento */}
-                <div className="descuento-badge">-{oferta.descuento}%</div>
+                {oferta.descuento > 0 && <div className="descuento-badge">-{oferta.descuento}%</div>}
 
                 {/* Imagen */}
                 <div className="oferta-img-wrap">
@@ -215,12 +216,16 @@ export default function Home() {
                   <span className="precio-oferta">
                     {oferta.precioOferta.toFixed(2)}€
                   </span>
-                  <span className="precio-original">
-                    {oferta.precioOriginal.toFixed(2)}€
-                  </span>
-                  <span className="precio-ahorro">
-                    Ahorras {oferta.ahorro.toFixed(2)}€
-                  </span>
+                  {oferta.descuento > 0 && (
+                    <span className="precio-original">
+                      {oferta.precioOriginal.toFixed(2)}€
+                    </span>
+                  )}
+                  {oferta.ahorro > 0 && (
+                    <span className="precio-ahorro">
+                      Ahorras {oferta.ahorro.toFixed(2)}€
+                    </span>
+                  )}
                 </div>
 
                 {/* Footer card */}
